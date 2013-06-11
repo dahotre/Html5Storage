@@ -23,17 +23,57 @@ $(function() {
         console.log('clicked');
         var next_page_link = $(this).attr('href');
         console.log('href: ' + next_page_link);
-        var next_page_number = parseInt(next_page_link.split('=')[1]) + 1;
+        var next_page_number = next_page_link.split('=')[1];
         var base_url = next_page_link.split('=')[0] + '=';
-        $(this).attr('href', base_url + next_page_number);
-        $.getJSON(next_page_link, function(quotes) {
-            var new_quotes = '';
+        var new_next_page_number = parseInt(next_page_number) + 1;
+        var new_next_page_url = base_url + new_next_page_number;
+        $(this).attr('href', new_next_page_url);
+
+
+        if (localStorage.length >= 1) { //If anything is stored in localStorage
+            var page_number_iterator = 1;
+            var quotes_array = [];
+            while (page_number_iterator <= next_page_number) {
+                if (page_number_iterator == next_page_number) {
+                    var quotes_in_csv = localStorage.getItem(page_number_iterator.toString());
+                    $.each(quotes_in_csv.split('||'), function(key, val) {
+                       if (key > 0) { //Hackish to get rid of initial ||
+                           quote = new Object();
+                           quote.author = val.split('~')[0];
+                           quote.quote = val.split('~')[1];
+                           quotes_array.push( quote );
+                       }
+                    });
+                }
+                page_number_iterator += 1;
+            }
+            show(quotes_array);
+        }
+        else {     //Else do the normal thing
+            $.getJSON(next_page_link, show);
+        }
+
+        //store next in localStorage
+        $.getJSON( new_next_page_url, function(quotes) {
+            var csv_quotes = '';
             $.each(quotes, function(key, val) {
-                new_quotes = new_quotes + "<tr class='quote'><td>" + val.author + "</td><td>" + val.quote + "</td></tr>";
+                csv_quotes += '||' + val.author + '~' + val.quote;
             });
 
-            $('#quotesTable').append(new_quotes);
+            localStorage.setItem(new_next_page_number.toString(), csv_quotes);
         });
+
+
     });
+
+    //Shows quotes supplied as an Array of Quote objects
+    var show = function(quotes) {
+        var new_quotes = '';
+        $.each(quotes, function(key, val) {
+            new_quotes = new_quotes + "<tr class='quote'><td>" + val.author + "</td><td>" + val.quote + "</td></tr>";
+        });
+
+        $('#quotesTable').append(new_quotes);
+    };
 
 });
