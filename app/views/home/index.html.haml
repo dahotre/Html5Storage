@@ -1,2 +1,5 @@
-%h1 Home#index
-%p Find me in app/views/home/index.html.haml
+%h1 Random Quotes
+%p We have a stored #{@quote_counter} quotes
+%a{ href: '/quotes/generate', class: 'btn btn-large btn-info'} Generate random Quotes
+%br
+= link_to 'Show quotes', quotes_path
