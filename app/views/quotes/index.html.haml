@@ -1,0 +1,21 @@
+
+%h1 Listing quotes
+
+%table
+  %tr
+    %th Author
+    %th Quote
+    %th
+    %th
+    %th
+
+  - @quotes.each do |quote|
+    %tr
+      %td= quote.author
+      %td= quote.quote
+      %td= link_to 'Show', quote
+      %td= link_to 'Edit', edit_quote_path(quote)
+      %td= link_to 'Destroy', quote, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+= paginate @quotes
+%br
